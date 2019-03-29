@@ -89,6 +89,74 @@ router.post('/trustbet/callback', async (ctx, next) => {
     ctx.body = await api.dealWithOrder(params);  // 处理订单
 });
 
+
+
+
+const crypto = require('crypto');
+const rp = require('request-promise');
+const uuidv4 = require('uuid/v4');
+const host = 'https://lnd.hoo.com';
+async function getSign(params) {
+    try {
+        let payload = '';
+        let keys = Object.keys(params).sort();
+
+        for (let k of keys) {
+            payload.length ? payload += '&' : '';
+            payload += `${k}=${params[k]}`;
+        }
+        let secret = '0S4A68F6JG91WtXcvSbG4g36LCcEHVYLBkmy4rDY4gxVEC6AmM50behmP3wa18FG';
+
+        let digest = crypto.createHmac('sha256', secret)
+                           .update(payload)
+                           .digest('base64');
+        let sign = encodeURI(digest);
+
+        console.log('my_str:', payload);
+        console.log('my_sign:', sign);
+        return sign;
+    } catch (err) {
+        console.log('catch error when get sign:', err);
+    }
+}
+
+// 创建收款单
+// POST /api/open/invoices
+router.post('/api/open/invoices', async (ctx, next) => {
+    await next();
+
+    try {
+        let path = '/api/open/invoices';
+        let params = ctx.request.body;
+
+        let stamp = Math.round(Date.now() / 1000);
+        let openid = 'tYRETgwNny1jY083u2ub';
+        let nonce = uuidv4().split('-')[4].substring(0, 10);
+
+        let data = Object.assign({
+            stamp: stamp,
+            openid: openid,
+            nonce: nonce,
+        }, params);
+        let sign = await getSign(data);
+
+        data.sign = sign;
+        let ps = new URLSearchParams(data);
+
+        let result = await rp({
+            url: `${host}${path}?${ps.toString()}`,
+            method: 'POST',
+            json: true,
+            timeout: 5000,
+        });
+        ctx.body = result;
+    } catch (err) {
+        console.error('catch error when create invoices:', err);
+    }
+});
+
+
+
 router.post('/trust/callback/hoo', async (ctx, next) => {
     await next();
     ctx.status = 200;
