@@ -138,7 +138,7 @@ async function createInvoices(params) {
         let ps = new URLSearchParams(data);
 
         let result = await rp({
-            url: `${host}${path}${ps.toString()}`,
+            url: `${host}${path}?${ps.toString()}`,
             method: 'POST',
             json: true,
             timeout: 5000,
@@ -195,6 +195,84 @@ router.post('/api/open/user', async (ctx, next) => {
     await next();
     let params = ctx.request.body;
     ctx.body = await getUser(params);
+});
+
+async function hooPay(params) {
+    try {
+        let path = '/api/open/invoices/pay';
+
+        let stamp = Math.round(Date.now() / 1000);
+        let openid = 'tYRETgwNny1jY083u2ub';
+        let nonce = uuidv4().split('-')[4].substring(0, 10);
+
+        let data = Object.assign({
+            stamp: stamp,
+            openid: openid,
+            nonce: nonce,
+        }, params);
+        let sign = await getSign(data);
+
+        data.sign = sign;
+        let ps = new URLSearchParams(data);
+
+        let result = await rp({
+            url: `${host}${path}?${ps.toString()}`,
+            method: 'GET',
+            json: true,
+            timeout: 5000,
+        });
+
+        return result;
+    } catch (err) {
+        logger.error('catch error when get invoices:', err);
+    }
+}
+
+// 支付
+// POST /api/open/invoices/pay
+router.post('/api/open/invoices/pay', async (ctx, next) => {
+    await next();
+    let params = ctx.request.body;
+    ctx.body = await hooPay(params);
+});
+
+async function hooTopup(params) {
+    try {
+        let path = '/api/open/address';
+
+        let stamp = Math.round(Date.now() / 1000);
+        let openid = 'tYRETgwNny1jY083u2ub';
+        let nonce = uuidv4().split('-')[4].substring(0, 10);
+
+        let data = Object.assign({
+            stamp: stamp,
+            openid: openid,
+            nonce: nonce,
+        }, params);
+        let sign = await getSign(data);
+
+        data.sign = sign;
+        let ps = new URLSearchParams(data);
+
+        let result = await rp({
+            url: `${host}${path}?${ps.toString()}`,
+            method: 'GET',
+            json: true,
+            timeout: 5000,
+        });
+
+        return result;
+    } catch (err) {
+        logger.error('catch error when hoo topup:', err);
+    }
+}
+
+// 充值
+// GET /api/open/address
+router.post('/api/open/address', async (ctx, next) => {
+    await next();
+    let params = ctx.request.body;
+    ctx.body = await hooTopup(params);
 });
 
 
