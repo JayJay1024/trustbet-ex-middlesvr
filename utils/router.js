@@ -89,4 +89,10 @@ router.post('/trustbet/callback', async (ctx, next) => {
     ctx.body = await api.dealWithOrder(params);  // 处理订单
 });
 
+router.post('/trust/callback/hoo', async (ctx, next) => {
+    await next();
+    ctx.status = 200;
+    ctx.body = 'OK';
+});
+
 module.exports = router;
