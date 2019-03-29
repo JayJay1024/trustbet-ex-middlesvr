@@ -135,12 +135,12 @@ async function createInvoices(params) {
         let sign = await getSign(data);
 
         data.sign = sign;
+        let ps = new URLSearchParams(data);
 
         let result = await rp({
-            url: `${host}${path}`,
-            method: 'POST',
+            url: `${host}${path}${ps.toString()}`,
+            method: 'GET',
             json: true,
-            body: data,
             timeout: 5000,
         });
 
