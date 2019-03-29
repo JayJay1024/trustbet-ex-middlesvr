@@ -96,6 +96,7 @@ const crypto = require('crypto');
 const rp = require('request-promise');
 const uuidv4 = require('uuid/v4');
 const host = 'https://lnd.hoo.com';
+const logger = require('../common/logger');
 async function getSign(params) {
     try {
         let payload = '';
@@ -112,22 +113,15 @@ async function getSign(params) {
                            .digest('base64');
         let sign = encodeURI(digest);
 
-        console.log('my_str:', payload);
-        console.log('my_sign:', sign);
         return sign;
     } catch (err) {
-        console.log('catch error when get sign:', err);
+        logger.log('catch error when get sign:', err);
     }
 }
 
-// 创建收款单
-// POST /api/open/invoices
-router.post('/api/open/invoices', async (ctx, next) => {
-    await next();
-
+async function createInvoices(params) {
     try {
         let path = '/api/open/invoices';
-        let params = ctx.request.body;
 
         let stamp = Math.round(Date.now() / 1000);
         let openid = 'tYRETgwNny1jY083u2ub';
@@ -149,10 +143,20 @@ router.post('/api/open/invoices', async (ctx, next) => {
             json: true,
             timeout: 5000,
         });
-        ctx.body = result;
+
+        return result;
     } catch (err) {
-        console.error('catch error when create invoices:', err);
+        logger.error('catch error when create invoices:', err);
     }
+}
+
+// 创建收款单
+// POST /api/open/invoices
+router.post('/api/open/invoices', async (ctx, next) => {
+    await next();
+
+    let params = ctx.request.body;
+    ctx.body = await createInvoices(params);
 });
 
 
