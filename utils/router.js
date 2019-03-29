@@ -139,7 +139,7 @@ async function createInvoices(params) {
 
         let result = await rp({
             url: `${host}${path}${ps.toString()}`,
-            method: 'GET',
+            method: 'POST',
             json: true,
             timeout: 5000,
         });
