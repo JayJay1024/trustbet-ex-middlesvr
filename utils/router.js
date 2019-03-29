@@ -115,7 +115,7 @@ async function getSign(params) {
 
         return sign;
     } catch (err) {
-        logger.log('catch error when get sign:', err);
+        logger.info('catch error when get sign:', err);
     }
 }
 
@@ -135,12 +135,12 @@ async function createInvoices(params) {
         let sign = await getSign(data);
 
         data.sign = sign;
-        let ps = new URLSearchParams(data);
 
         let result = await rp({
-            url: `${host}${path}?${ps.toString()}`,
+            url: `${host}${path}`,
             method: 'POST',
             json: true,
+            body: data,
             timeout: 5000,
         });
 
@@ -154,9 +154,47 @@ async function createInvoices(params) {
 // POST /api/open/invoices
 router.post('/api/open/invoices', async (ctx, next) => {
     await next();
-
     let params = ctx.request.body;
     ctx.body = await createInvoices(params);
+});
+
+async function getUser(params) {
+    try {
+        let path = '/api/open/invoices';
+
+        let stamp = Math.round(Date.now() / 1000);
+        let openid = 'tYRETgwNny1jY083u2ub';
+        let nonce = uuidv4().split('-')[4].substring(0, 10);
+
+        let data = Object.assign({
+            stamp: stamp,
+            openid: openid,
+            nonce: nonce,
+        }, params);
+        let sign = await getSign(data);
+
+        data.sign = sign;
+        let ps = new URLSearchParams(data);
+
+        let result = await rp({
+            url: `${host}${path}?${ps.toString()}`,
+            method: 'GET',
+            json: true,
+            timeout: 5000,
+        });
+
+        return result;
+    } catch (err) {
+        logget.error('catch error when get user:', err);
+    }
+}
+
+// 查询账户
+// GET /api/open/user
+router.post('/api/open/user', async (ctx, next) => {
+    await next();
+    let params = ctx.request.body;
+    ctx.body = await getUser(params);
 });
 
 
