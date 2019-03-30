@@ -76,7 +76,7 @@ class Base {
             let result = await rp({
                 url: `${url}?${ps.toString()}`,
                 method: 'GET',
-                json: false,
+                json: true,
                 timeout: 5000,
             });
             return result;
@@ -96,7 +96,7 @@ class Base {
             let result = await rp({
                 url: `${url}?${ps.toString()}`,  // hoo暂不支持json的body
                 method: 'POST',
-                json: false,
+                json: true,
                 timeout: 5000,
             });
             return result;
