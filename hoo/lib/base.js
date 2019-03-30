@@ -94,11 +94,10 @@ class Base {
             let ps = new URLSearchParams(params);
 
             let result = await rp({
-                url: `${url}`,
+                url: `${url}?${ps.toString()}`,  // hoo暂不支持json的body
                 method: 'POST',
                 json: false,
                 timeout: 5000,
-                body: ps.toString(),  // hoo暂不支持json的body
             });
             return result;
         } catch (err) {
