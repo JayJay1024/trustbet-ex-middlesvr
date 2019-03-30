@@ -28,7 +28,7 @@ log4js.configure({
     }
 });
 
-const logger = log4js.getLogger('cheese');
+const logger = log4js.getLogger('default');
 logger.level = config.debug ? 'DEBUG' : 'ERROR';
 
 module.exports = logger;

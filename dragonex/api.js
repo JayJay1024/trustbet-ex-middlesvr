@@ -5,7 +5,7 @@ const config = require('../config');
 const logger = require('../common/logger');
 const redisClient = require('../common/redis');
 const Trustbet = require('../trustbet/trustbet');
-const dv1 = require('../lib/dragonex');
+const dv1 = require('./lib/dragonex');
 
 const dragonex = new dv1.DragonExV1(config.dragonex.host,
                                     config.dragonex.company_id,

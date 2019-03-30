@@ -13,6 +13,12 @@ const config = {
 
     log_dir: path.join(__dirname, 'logs'),
 
+    hoo: {
+        host: 'https://lnd.hoo.com',
+        openid: 'tYRETgwNny1jY083u2ub',  // 闪电钱包id(商户)
+        secret: '0S4A68F6JG91WtXcvSbG4g36LCcEHVYLBkmy4rDY4gxVEC6AmM50behmP3wa18FG',  // 闪电钱包的secret
+    },
+
     dragonex: {
         host: 'devoauth.dragonex.im',  // test env
         company_id: '简体Name',

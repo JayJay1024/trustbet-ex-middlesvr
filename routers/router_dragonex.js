@@ -1,6 +1,6 @@
 'use strict';
 
-const api = require('./api');
+const api = require('../dragonex/api');
 const Router = require('koa-router');
 const router = new Router();
 

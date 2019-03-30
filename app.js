@@ -5,7 +5,8 @@ const cors = require('koa2-cors');
 const bodyParser = require('koa-bodyparser');
 const config = require('./config');
 const logger = require('./common/logger');
-const router = require('./utils/router');
+const router_hoo = require('./routers/router_hoo');
+const router_dragonex = require('./routers/router_dragonex');
 const requestLog = require('./utils/request_log');
 
 const app = new Koa();
@@ -32,8 +33,10 @@ app.use(async (ctx, next) => {
 app.use(requestLog);
 
 // router
-app.use(router.routes())
-   .use(router.allowedMethods());
+app.use(router_hoo.routes())
+   .use(router_hoo.allowedMethods());
+// app.use(router_dragonex.routes())
+//    .use(router_dragonex.allowedMethods());
 
 if (!module.parent) {
     app.listen(config.app_port, () => {
