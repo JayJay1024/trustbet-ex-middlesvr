@@ -12,14 +12,14 @@ router.post('/api/open/user', async (ctx, next) => {
 });
 
 // 创建商户收款单
-router.post('/api/open/invoices', async (ctx, next) => {
+router.post('/api/open/invoices/create', async (ctx, next) => {
     await next();
     let params = ctx.request.body;
     ctx.body = await api.createInvoices(params);
 });
 
 // 收款单详情
-router.post('/api/open/invoices', async (ctx, next) => {
+router.post('/api/open/invoices/detail', async (ctx, next) => {
     await next();
     let params = ctx.request.body;
     ctx.body = await api.getInvoices(params);
