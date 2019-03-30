@@ -1,7 +1,7 @@
 'use strict';
 
 const config = require('../config');
-const HooV1 = require('./lib/base');
+const HooV1 = require('./lib/hoo');
 const logger = require('../common/logger');
 
 const hoo = new HooV1(
