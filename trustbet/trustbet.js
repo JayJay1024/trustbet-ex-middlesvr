@@ -162,10 +162,35 @@ class TrustBet {
     }
 
     /**
+     * 缓存playbull2结果
+     */
+    async savePlayBull2Res(params) {
+        try {
+            let dataJson = params, retry = 15;
+            let key = `pro:play:result:${dataJson.trade_no}`, dataStr = JSON.stringify(dataJson);
+            while (retry--) {
+                if (await redisClient.set(key, dataStr, 'EX', 3600) === 'OK') {
+                    return true;
+                }
+            }
+            logger.warn('save play bull 2 result fail:', dataStr);
+            return false;
+        } catch (err) {
+            logger.error('catch error when save play bull 2 result:', err);
+        }
+    }
+
+    /**
      * hoo收款成功订单
      */
     async dealWithInvoices(params) {
         try {
+            let playRes = {
+                act_status: 'wait',
+                player: params.payer,
+                trade_no: params.tradeno,
+            }
+
             let player   = params.payer ? params.payer : 'test';
             let quantity = params.amount ? params.amount + ' SAT' : '0.0000 EOS';
             let memo     = params.memo ? params.memo : 'test';
@@ -176,8 +201,10 @@ class TrustBet {
                 // 特别地需要判断 status === 'executed'，避免 hard_fail 攻击
                 // 现在可以认为push action成功了
                 logger.info('play bull2 action success, params: ', JSON.stringify(params));
+                playRes.act_status = 'success';
             } else {
                 logger.warn('play bull2 action fail, params: ', params);
+                playRes.act_status = 'fail';
 
                 // 退回款项
                 let pb = {
@@ -196,6 +223,8 @@ class TrustBet {
                 result.player = params.payer;
                 redisPub.publish('ProPlayBull', JSON.stringify(result));
             }
+
+            this.savePlayBull2Res(playRes);
         } catch (err) {
             logger.error('catch error when deal with invoices in trustbet:', err);
         }
