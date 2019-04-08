@@ -89,9 +89,28 @@ class HooV1 extends base {
      *     memo:      string   否   备注
      * 注: amount为可选参数，若invoice为固定金额收款，则以invoice为准，若invoice为不固定金额收款，刚以amount参数为准
      */
-    async pay2User(params) {
+    async pay2Invoices(params) {
         try {
             let path = '/api/open/invoices/pay';
+            let vp = await this.getValidParams(params);
+            return await this.sendPOST(path, vp);
+        } catch (err) {
+            this.logger.error('[hoo]catch error when pay to Invoices:', err);
+        }
+    }
+
+    /**
+     * 站内支付
+     * POST /api/open/user/pay
+     * 说明: 此操作为商户方主动给用户打币，无需用户发起操作，此接口仅支持虎符站内。
+     * 参数(参数名、参数类型、是否必须、描述):
+     *     client_id:  string  是  虎符钱包内的用户闪电网络账户id
+     *     amount:     int     是  金额
+     *     memo:       string  否  备注
+     */
+    async pay2User(params) {
+        try {
+            let path = '/api/open/user/pay';
             let vp = await this.getValidParams(params);
             return await this.sendPOST(path, vp);
         } catch (err) {

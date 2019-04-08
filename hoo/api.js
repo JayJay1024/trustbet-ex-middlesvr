@@ -3,13 +3,14 @@
 const config = require('../config');
 const HooV1 = require('./lib/hoo');
 const logger = require('../common/logger');
+const Trustbet = require('../trustbet/trustbet');
 
 const hoo = new HooV1(
                       config.hoo.host,
                       config.hoo.openid,
                       config.hoo.secret,
                       logger);
-
+const trustbet = new Trustbet(pay2User);
 
 /**
  * 查询账户
@@ -63,8 +64,23 @@ const decodeInvoices = async (params) => {
  *     memo:      string   否   备注
  * 注: amount为可选参数，若invoice为固定金额收款，则以invoice为准，若invoice为不固定金额收款，刚以amount参数为准
  */
-const pay2User = async (params) => {
-    return await hoo.pay2User(params);
+async function pay2Invoices(params) {
+    return await hoo.pay2Invoices(params);
+}
+
+/**
+ * 站内支付
+ * 说明: 此操作为商户方主动给用户打币，无需用户发起操作，此接口仅支持虎符站内。
+ * 参数(参数名、参数类型、是否必须、描述):
+ *     client_id:  string  是  虎符钱包内的用户闪电网络账户id
+ *     amount:     int     是  金额
+ *     memo:       string  否  备注
+ */
+async function pay2User(params) {
+    logger.info('[hoo]pay to user:', JSON.stringify(params));
+    let result = await hoo.pay2User(params);
+    logger.info('[hoo]pay to user result:', result);
+    return result;
 }
 
 /**
@@ -88,17 +104,38 @@ const getAppAddress = async () => {
 }
 
 /**
+ * 取消预约上庄
+ */
+const cancelOndealerlater = async (params) => {
+    let player = params.player ? params.player : 'test';
+    let sym    = params.coin_code ? `0,${params.coin_code.toUpperCase()}` : '4,EOS';
+    return await trustbet.cancelOndealerlater2(player, sym);
+}
+/**
+ * 立即下庄、预约下庄，取消预约下庄
+ */
+const offdealer = async (params) => {
+    let player = params.player ? params.player : 'test';
+    let sym    = params.coin_code ? `0,${params.coin_code.toUpperCase()}` : '4,EOS';
+    let status = params.status ? params.status : 0;
+    return await trustbet.offdealer2(player, sym, status);
+}
+
+/**
  * 收款成功回调
  * 说明: 此接口为Hoo虎符钱包回调商户系统
  * 参数(参数名、参数类型、是否必须、描述):
  *     payment_hash:   string    是   收款码id
  *     tradeno:        string    是   客户系统唯一订单号
+ *     memo:           string    是   原样返回
  *     extra:          string    是   原样返回
  *     amount:         string    是   收款金额(聪)
+ *     payer:          string    是   支付者的client_id
  */
-const dealwithInvoices = async (params) => {
+const dealWithInvoices = async (params) => {
     try {
         this.logger.info('[hoo]invoices cb from hoo:', params);
+        trustbet.dealWithInvoices(params);
         return 'OK';
     } catch (err) {
         this.logger.error('[hoo]catch error when deal with invoices:', err);
@@ -110,8 +147,11 @@ module.exports = {
     createInvoices: createInvoices,
     getInvoices: getInvoices,
     decodeInvoices: decodeInvoices,
+    pay2Invoices: pay2Invoices,
     pay2User: pay2User,
     getAppBalance: getAppBalance,
     getAppAddress: getAppAddress,
-    dealwithInvoices: dealwithInvoices,
+    cancelOndealerlater: cancelOndealerlater,
+    offdealer: offdealer,
+    dealWithInvoices: dealWithInvoices,
 }

@@ -21,6 +21,23 @@ class Bull {
      * 取消预约上庄
      * 合约接口：lreondealer(const string &player , const symbol &sym);
      */
+    async cancelOndealerlater2(player='test', sym='4,EOS') {
+        try {
+            logger.debug(`cancle ondealerlater 2, p(${player}), s(${sym})`);
+
+            let contractHandle = await eosClient.contract(config.contract.bull);
+            let result = await contractHandle.lreondealer(
+                player, sym,
+                {authorization: config.action_pusher.bull}
+            );
+
+            logger.info('cancle ondealerlater 2 action result:', result);
+            return result;
+        } catch (err) {
+            logger.error('catch catch error when cancel ondealerlater 2 in bull:', err);
+            return err;
+        }
+    }
     async cancelOndealerlater(params) {
         try {
             logger.debug('cancelOndealerlater:', JSON.stringify(params));
@@ -54,6 +71,23 @@ class Bull {
      * 立即下庄、预约下庄，取消预约下庄
      * 合约接口：loffdealer(const string &player, const symbol &sym ,const uint64_t &status);  //0：立即下庄 1：预约下庄  2:取消预约下庄
      */
+    async offdealer2(player='test', sym='4,EOS', status=0) {
+        try {
+            logger.debug(`offdealer2, p(${player}), sy(${sym}), st(${status})`);
+
+            let contractHandle = await eosClient.contract(config.contract.bull);
+            let result = await contractHandle.loffdealer(
+                player, sym, status,
+                {authorization: config.action_pusher.bull}
+            );
+
+            logger.info('cancle offdealer 2 action result:', result);
+            return result;
+        } catch (err) {
+            logger.error('catch error when offdealer 2 in bull:', err);
+            return err;
+        }
+    }
     async offdealer(params) {
         try {
             logger.debug('offdealer:', JSON.stringify(params));
@@ -107,6 +141,23 @@ class Bull {
      * 牛牛下注、立即上庄、预约上庄
      * 合约接口: placebet(const string &player, const asset &quantity, const string &memo)
      */
+    async playBull2(player='test', quantity='0.0000 EOS', memo='test', cmd='bet') {
+        try {
+            logger.debug(`play bull 2, p(${player}), q(${quantity}), m(${memo})`);
+
+            let contractHandle = await eosClient.contract(config.contract.bull);
+            let result =  await contractHandle.placebet(
+                player, quantity, memo,
+                {authorization: config.action_pusher.bull}
+            );
+
+            logger.info('play bull2 action result:', result);
+            return result;
+        } catch (err) {
+            logger.error('catch error when play bull2:', err);
+            return err;
+        }
+    }
     async playBull(params, cmd) {
         try {
             let dataJson = params;
@@ -149,7 +200,7 @@ class Bull {
                     trade_no: dataJson.trade_no,
                 }
                 this.savePlayRes(playRes);
-                redisPub.publish('DGPlayBull', JSON.stringify(playRes));
+                redisPub.publish('ProPlayBull', JSON.stringify(playRes));
             }
         } catch (err) {
             logger.error('catch error when play bull:', err);
@@ -174,7 +225,7 @@ class Bull {
                         errJson.open_id = dataJson.open_id;
                         errJson.trade_no = dataJson.trade_no;
                         this.savePlayRes(errJson);
-                        redisPub.publish('DGPlayBull', JSON.stringify(errJson));
+                        redisPub.publish('ProPlayBull', JSON.stringify(errJson));
                     }
                 }
             } catch (err2) {
@@ -248,7 +299,7 @@ class Bull {
     async saveResult(data) {
         try {
             if (data && data.id) {
-                let key = 'dg:bull:finishresult', score = data.id;
+                let key = 'pro:bull:finishresult', score = data.id;
                 let dataStr = JSON.stringify(data), retry = 25;
                 while (retry--) {
                     redisClient.watch(key);
@@ -282,7 +333,7 @@ class Bull {
     async saveOffdealer(data) {
         try {
             if (data && data.id) {
-                let key = 'dg:bull:finishdealer', score = data.id;
+                let key = 'pro:bull:finishdealer', score = data.id;
                 let dataStr = JSON.stringify(data), retry = 25;
                 while (retry--) {
                     redisClient.watch(key);
@@ -315,7 +366,7 @@ class Bull {
      */
     async isFinishResult(data) {
         try {
-            let key = 'dg:bull:finishresult';
+            let key = 'pro:bull:finishresult';
             let dataStr = JSON.stringify(data), retry = 15;
             while (retry--) {
                 redisClient.watch(key);
@@ -336,7 +387,7 @@ class Bull {
      */
     async isFinishOffdealer(data) {
         try {
-            let key = 'dg:bull:finishdealer';
+            let key = 'pro:bull:finishdealer';
             let dataStr = JSON.stringify(data), retry = 15;
             while (retry--) {
                 redisClient.watch(key);
@@ -361,14 +412,19 @@ class Bull {
                 for (let bet of data.bets) {
                     let payout = bet.payout.split(' ');
                     if (payout[0] * 1.0 > 0) {
+                        // let p = {
+                        //     uid: 0,
+                        //     open_id: bet.player,
+                        //     volume: payout[0],
+                        //     coin_code: payout[1],
+                        //     scene: 'trusbetbull bet result pay',
+                        //     desc: `trustbetbull pay, round ${data.round}, period ${data.period}, bet id ${bet.id}, site ${bet.site}, payin ${bet.payin}`,
+                        // };
                         let p = {
-                            uid: 0,
-                            open_id: bet.player,
-                            volume: payout[0],
-                            coin_code: payout[1],
-                            scene: 'trusbetbull bet result pay',
-                            desc: `trustbetbull pay, round ${data.round}, period ${data.period}, bet id ${bet.id}, site ${bet.site}, payin ${bet.payin}`,
-                        };
+                            client_id: bet.player,
+                            amount: parseInt(payout[0]),
+                            memo: `trustbetbull pay, round ${data.round}, period ${data.period}, bet id ${bet.id}, site ${bet.site}, payin ${bet.payin}`,
+                        }
                         this.pay2User(p);
                         logger.debug('payed bet:', JSON.stringify(p));
                     }
@@ -387,14 +443,19 @@ class Bull {
             logger.debug('pay offdealer:', JSON.stringify(data));
             let quantity = data.offdealerinfo.quantity.split(' ');
             if (quantity[0] * 1.0 > 0) {
+                // let p = {
+                //     uid: 0,
+                //     open_id: data.offdealerinfo.dealer,
+                //     volume: quantity[0],
+                //     coin_code: quantity[1],
+                //     scene: 'trusbetbull offdealer play',
+                //     desc: `trusbetbull offdealer play, id ${data.id}`,
+                // };
                 let p = {
-                    uid: 0,
-                    open_id: data.offdealerinfo.dealer,
-                    volume: quantity[0],
-                    coin_code: quantity[1],
-                    scene: 'trusbetbull offdealer play',
-                    desc: `trusbetbull offdealer play, id ${data.id}`,
-                };
+                    client_id: data.offdealerinfo.dealer,
+                    amount: parseInt(payout[0]),
+                    memo: `trusbetbull offdealer play, id ${data.id}`,
+                }
                 this.pay2User(p);
                 logger.debug('payed offdealer:', JSON.stringify(p));
             }

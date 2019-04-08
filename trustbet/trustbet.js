@@ -1,5 +1,6 @@
 'use strict'
 
+const redisPub = require('../common/redis');
 const redisClient = require('../common/redis');
 const logger = require('../common/logger');
 const Bull = require('./bull');
@@ -33,6 +34,15 @@ class TrustBet {
     /**
      * 取消预约上庄
      */
+    async cancelOndealerlater2(player, sym) {
+        try {
+            let res = await this.bull.cancelOndealerlater2(player, sym);
+            logger.debug('cancelOndealerlater 2 result:', res);
+            return res;
+        } catch (err) {
+            logger.error('catch error when cancel ondealerlater 2 in trustbet:', err);
+        }
+    }
     async cancelOndealerlater(params) {
         try {
             let res = await this.bull.cancelOndealerlater(params);
@@ -45,6 +55,15 @@ class TrustBet {
     /**
      * 立即下庄、预约下庄，取消预约下庄
      */
+    async offdealer2(player, sym, status) {
+        try {
+            let res = await this.bull.offdealer(player,sym, status);
+            logger.debug('offdealer 2 result:', res);
+            return res;
+        } catch (err) {
+            logger.error('catch error when offdealer 2 in trustbet:', err);
+        }
+    }
     async offdealer(params) {
         try {
             let res = await this.bull.offdealer(params);
@@ -92,7 +111,7 @@ class TrustBet {
     }
 
     /**
-     * 处理成功支付给我们的订单
+     * 龙网处理成功支付给我们的订单
      */
     async dealWithPay2AppSuccessOrder(params) {
         try {
@@ -139,6 +158,46 @@ class TrustBet {
             }
         } catch (err) {
             logger.error('catch error when deal with pay to app success order:', err);
+        }
+    }
+
+    /**
+     * hoo收款成功订单
+     */
+    async dealWithInvoices(params) {
+        try {
+            let player   = params.payer ? params.payer : 'test';
+            let quantity = params.amount ? params.amount + ' SAT' : '0.0000 EOS';
+            let memo     = params.memo ? params.memo : 'test';
+            let cmd      = params.extra ? params.extra : 'test';
+
+            let result = await this.bull.playBull2(player, quantity, memo, cmd);
+            if (result && result.processed && result.processed.receipt && result.processed.receipt.status && result.processed.receipt.status === 'executed') {
+                // 特别地需要判断 status === 'executed'，避免 hard_fail 攻击
+                // 现在可以认为push action成功了
+                logger.info('play bull2 action success, params: ', JSON.stringify(params));
+            } else {
+                logger.warn('play bull2 action fail, params: ', params);
+
+                // 退回款项
+                let pb = {
+                    client_id: params.payer,
+                    amount: params.amount,
+                    memo: `play bull fail, pay back to you now.${cmd}-${memo}`,
+                }
+                this.pay2User(pb);
+
+                // 推送失败信息
+                if (typeof result === 'string') {
+                    result = JSON.parse(result);
+                }
+                result.act_status = 'fail';
+                result.trade_no = params.tradeno;
+                result.player = params.payer;
+                redisPub.publish('ProPlayBull', JSON.stringify(result));
+            }
+        } catch (err) {
+            logger.error('catch error when deal with invoices in trustbet:', err);
         }
     }
 }

@@ -57,19 +57,19 @@ http://161.117.4.243:3030/hoo/api/open/address
 /**
  * 取消预约上庄
  * 参数(参数名、参数类型、是否必须、描述):
- *     client_id:  string  是  闪电网络玩家id
- *     coin_code:  string  是  该值固定位 'SAT,0'
+ *     player:     string  是  闪电网络玩家id
+ *     coin_code:  string  是  闪电网络该值固定为 'SAT,0'
  */
-http://161.117.4.243:3030/hoo/ondealer/later/cancel
+http://161.117.4.243:3030/trust/ondealer/later/cancel
 
 /**
  * 立即下庄、预约下庄，取消预约下庄
  * 参数(参数名、参数类型、是否必须、描述):
- *     client_id:  string  是  闪电网络玩家id
- *     coin_code:  string  是  该值固定位 'SAT,0'
+ *     player:     string  是  闪电网络玩家id
+ *     coin_code:  string  是  闪电网络该值固定为 'SAT,0'
  *     status:     int     是  0: 立即下庄, 1: 预约下庄, 2: 取消预约下庄
  */
-http://161.117.4.243:3030/hoo/offdealer
+http://161.117.4.243:3030/trust/offdealer
 ```
 
 ### 虎符前端创建收款单时传递extra字段：
