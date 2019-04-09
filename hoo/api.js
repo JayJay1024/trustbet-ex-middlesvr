@@ -134,11 +134,11 @@ const offdealer = async (params) => {
  */
 const dealWithInvoices = async (params) => {
     try {
-        this.logger.info('[hoo]invoices cb from hoo:', params);
+        logger.info('[hoo]invoices cb from hoo:', params);
         trustbet.dealWithInvoices(params);
         return 'OK';
     } catch (err) {
-        this.logger.error('[hoo]catch error when deal with invoices:', err);
+        logger.error('[hoo]catch error when deal with invoices:', err);
     }
 }
 
