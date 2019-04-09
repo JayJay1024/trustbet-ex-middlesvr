@@ -192,7 +192,7 @@ class TrustBet {
             }
 
             let player   = params.payer ? params.payer : 'test';
-            let quantity = params.amount ? params.amount + ' SAT' : '0.0000 EOS';
+            let quantity = params.amount ? parseInt(params.amount) * 10000 + ' SAT' : '0.0000 EOS';
             let memo     = params.memo ? params.memo : 'test';
             let cmd      = params.extra ? params.extra : 'test';
 
