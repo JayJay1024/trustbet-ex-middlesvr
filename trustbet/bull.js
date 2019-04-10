@@ -14,7 +14,7 @@ class Bull {
         this.pay2User = pay2User;
         this.updateCacheOrder = updateCacheOrder;
 
-        // this.monitorActions();
+        this.monitorActions();
     }
 
     /**
