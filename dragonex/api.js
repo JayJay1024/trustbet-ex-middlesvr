@@ -4,7 +4,7 @@ const uuid = require('uuid-js');
 const config = require('../config');
 const logger = require('../common/logger');
 const redisClient = require('../common/redis');
-const Trustbet = require('../trustbet/trustbet');
+// const Trustbet = require('../trustbet/trustbet');
 const dv1 = require('./lib/dragonex');
 
 const dragonex = new dv1.DragonExV1(config.dragonex.host,
@@ -13,7 +13,7 @@ const dragonex = new dv1.DragonExV1(config.dragonex.host,
                                     config.dragonex.access_key,
                                     config.dragonex.secret_key,
                                     config.dragonex.resp_check_key);
-const trustbet = new Trustbet(applyPay2User);  // 由于Trustbet中有需要向用户支付的情景
+// const trustbet = new Trustbet(applyPay2User);  // 由于Trustbet中有需要向用户支付的情景
 
 /**
  * 判断参数 checkStr 是不是 html 标签
@@ -443,7 +443,8 @@ const redoCallback = async (params) => {
  */
 const cancelOndealerlater = async (params) => {
     try {
-        return await trustbet.cancelOndealerlater(params);
+        // return await trustbet.cancelOndealerlater(params);
+        return 'OK';
     } catch (err) {
         logger.error('catch error when cancel ondealerlater in api:', err);
     }
@@ -453,7 +454,8 @@ const cancelOndealerlater = async (params) => {
  */
 const offdealer = async (params) => {
     try {
-        return await trustbet.offdealer(params);
+        // return await trustbet.offdealer(params);
+        return 'OK';
     } catch (err) {
         logger.error('catch error when offdealer in api:', err);
     }
@@ -521,7 +523,7 @@ const dealWithOrder = async (params) => {
         } else if (dataJson.status === 3) {  // 转账中（若长期处于转账中，说明有异常，请联系DragonEx处理）
             logger.info('transfer ing:', dataStr);
         } else if (dataJson.status === 1 && dataJson.direction === 1) {  // 向我们转账成功
-            trustbet.dealWithPay2AppSuccessOrder(dataStr);
+            // trustbet.dealWithPay2AppSuccessOrder(dataStr);
         }
         return 'OK';
     } catch (err) {
