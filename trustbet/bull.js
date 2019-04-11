@@ -453,7 +453,7 @@ class Bull {
                 // };
                 let p = {
                     client_id: data.offdealerinfo.dealer,
-                    amount: parseInt(payout[0]),
+                    amount: parseInt(quantity[0]),
                     memo: `trusbetbull offdealer play, id ${data.id}`,
                 }
                 this.pay2User(p);
