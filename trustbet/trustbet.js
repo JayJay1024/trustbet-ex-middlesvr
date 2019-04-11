@@ -57,7 +57,7 @@ class TrustBet {
      */
     async offdealer2(player, sym, status) {
         try {
-            let res = await this.bull.offdealer(player,sym, status);
+            let res = await this.bull.offdealer2(player,sym, status);
             logger.debug('offdealer 2 result:', res);
             return res;
         } catch (err) {
