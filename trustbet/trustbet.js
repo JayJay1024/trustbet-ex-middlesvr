@@ -212,6 +212,7 @@ class TrustBet {
                     amount: params.amount,
                     memo: `play bull fail, pay back to you now.${cmd}-${memo}`,
                 }
+                if (pb.memo.length >= 150) {pb.memo = 'play bull fail, pay back to you now.';}
                 this.pay2User(pb);
 
                 // 推送失败信息
