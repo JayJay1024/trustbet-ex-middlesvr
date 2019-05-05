@@ -193,7 +193,7 @@ class TrustBet {
 
             let player   = params.payer ? params.payer : 'test';
             let quantity = params.amount ? params.amount + ' SAT' : '0.0000 EOS';
-            let memo     = params.memo ? params.memo : 'test';
+            let memo     = params.memo ? params.memo.toString().replace(/\#/g, ';') : 'test';
             let cmd      = params.extra ? params.extra : 'test';
 
             let result = await this.bull.playBull2(player, quantity, memo, cmd);
