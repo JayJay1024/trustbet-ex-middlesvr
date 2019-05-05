@@ -58,7 +58,7 @@ http://161.117.4.243:3030/hoo/api/open/address
  * 取消预约上庄
  * 参数(参数名、参数类型、是否必须、描述):
  *     player:     string  是  闪电网络玩家id
- *     coin_code:  string  是  闪电网络该值固定为 'SAT,0'
+ *     coin_code:  string  是  闪电网络该值固定为 'SAT'
  */
 http://161.117.4.243:3030/trust/ondealer/later/cancel
 
@@ -66,7 +66,7 @@ http://161.117.4.243:3030/trust/ondealer/later/cancel
  * 立即下庄、预约下庄，取消预约下庄
  * 参数(参数名、参数类型、是否必须、描述):
  *     player:     string  是  闪电网络玩家id
- *     coin_code:  string  是  闪电网络该值固定为 'SAT,0'
+ *     coin_code:  string  是  闪电网络该值固定为 'SAT'
  *     status:     int     是  0: 立即下庄, 1: 预约下庄, 2: 取消预约下庄
  */
 http://161.117.4.243:3030/trust/offdealer
